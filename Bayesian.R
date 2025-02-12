@@ -95,21 +95,19 @@ summary(posterior_summary)
 describe_posterior(posterior_summary)
 
 ## using the Student t-distribution
-intercept_t <- student_t(df= 2, location = 13, scale = 2)
-coef_t <- student_t(df = 3, location = 0, scale = 100)
-testPriors_tdist <- list(
-  intercept_t,
-  coef_t,
-  coef_t,
-  coef_t
+bayes_lm_fit4 <- stan_glm(
+  Rel_reduction ~ factor(Treatment) + factor(Gender) + factor(Chemo) + Age,
+  data = oncology_dat,
+  family = gaussian(link = "identity"),
+  prior_intercept = student_t(df = 2, location = 13, scale = 2),
+  prior = student_t(df = 3, location = 0, scale = 100),
+  iter = 10000, warmup = 5000,
+  chains = 1
 )
-bayes_lm_fit4 <- stan_glm(Rel_reduction ~ factor(Treatment) + factor(Gender) +
-                            factor(Chemo) + Age,
-                          data = oncology_dat,
-                          family = gaussian(link = "identity"),
-                          prior = testPriors_tdist,
-                          iter = 10000, warmup = 5000,
-                          chains = 1)
+
+summary(bayes_lm_fit4)
+plot(bayes_lm_fit4)
+describe_posterior(bayes_lm_fit4)
 
 ## Bayesian linear regression with interaction effect
 bayes_lm_fit_int <- stan_glm(Rel_reduction ~ factor(Treatment) + factor(Gender) +
@@ -126,3 +124,4 @@ fit_re <- stan_glmer(Rel_reduction ~ factor(Treatment) + factor(Gender) +
        factor(Chemo) + Age + factor(Treatment) + 1|Center, data = oncology_dat, family = gaussian(link = "identity"),
        iter = 10000, warmup = 5000, chains = 1)
 summary(fit_re)
+
